@@ -1,0 +1,29 @@
+import os
+import gradio as gr
+import google.generativeai as genai
+
+# Set your Gemini API key
+GOOGLE_API_KEY = "YOUR_API_KEY"
+os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
+genai.configure(api_key=GOOGLE_API_KEY)
+
+model = genai.GenerativeModel(model_name="models/gemini-2.5-pro-exp-03-25")
+
+def build_resume(input_text):
+    prompt = (
+        "Act as a professional resume writer. Convert the following plain text into a well-structured and neatly formatted resume. "
+        "Organize it into Summary, Skills, Work Experience, Education, and Projects:\n\n"
+        f"{input_text}\n\n"
+        "Output in markdown format."
+    )
+    response = model.generate_content(prompt)
+    return response.text
+
+# Gradio interface
+gr.Interface(
+    fn=build_resume,
+    inputs=gr.Textbox(lines=10, placeholder="Enter your plain text resume info here..."),
+    outputs="text",
+    title="Resume Builder from Plain Text",
+    description="Enter your experience and background in plain text, and get a structured resume using Gemini API."
+).launch()
